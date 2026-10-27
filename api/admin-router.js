@@ -34,13 +34,19 @@ export default async function handler(req, res) {
   // что и раньше (num, id, action, date, master, status, q, limit, offset...).
   const q = { ...(req.query || {}) };
   delete q.r;
-  // /api/admin/bookings/:num — ветка с номером записи.
+  // НЕ делать { ...req, query: q }: спред копирует только собственные
+  // перечислимые свойства, а у req на Vercel заголовки, сокет и методы
+  // потока (req.on для multipart) живут не в них — хендлер получал
+  // объект без headers и без req.on, поэтому сессии не находились (401),
+  // а загрузка медиа падала бы. Передаём исходный req, меняя только query.
   const m = r.match(/^bookings\/(\d+)$/);
   if (m) {
     q.num = m[1];
-    return bookingsNum({ ...req, query: q }, res);
+    req.query = q;
+    return bookingsNum(req, res);
   }
   const h = ROUTES[r];
   if (!h) return err(res, 404, "Не найдено");
-  return h({ ...req, query: q }, res);
+  req.query = q;
+  return h(req, res);
 }
