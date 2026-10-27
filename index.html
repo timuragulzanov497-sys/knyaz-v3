@@ -211,7 +211,6 @@
       .cat-card:first-child{margin-top:8px}
       .cat-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 2px 2px;flex-wrap:wrap}
       .cat-name{font-family:var(--serif);font-size:17.5px}
-      .cat-price{font-size:13.5px;color:var(--brass-text);white-space:nowrap}
       .opt{width:100%;display:flex;align-items:center;gap:12px;text-align:left;
         background:transparent;border:0;border-bottom:1px solid var(--line);
         color:var(--text);padding:11px 4px;font-size:15px;min-height:52px;cursor:pointer}
@@ -458,7 +457,7 @@
       <div class="modal-head">
         <div>
           <h2>Запись</h2>
-          <div class="sub">Выберите услуги, мастера и удобное время</div>
+          <div class="sub">Выберите мастера, услуги и удобное время</div>
         </div>
         <button type="button" class="modal-x" id="modalClose" aria-label="Закрыть">&times;</button>
       </div>
@@ -467,21 +466,9 @@
         <div id="flowView">
           <div class="notice" id="notice" role="status" hidden></div>
 
-          <section class="step open" id="stepSvc">
-            <button type="button" class="step-head" data-toggle="stepSvc" aria-expanded="true">
+          <section class="step open" id="stepMaster">
+            <button type="button" class="step-head" data-toggle="stepMaster" aria-expanded="true">
               <span class="step-num">1</span>
-              <span class="step-main">
-                <span class="step-label">Услуги</span>
-                <div class="step-value" id="valSvc">Не выбраны</div>
-              </span>
-              <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-            <div class="step-body" id="svcStepBody"></div>
-          </section>
-
-          <section class="step" id="stepMaster">
-            <button type="button" class="step-head" data-toggle="stepMaster" aria-expanded="false">
-              <span class="step-num">2</span>
               <span class="step-main">
                 <span class="step-label">Специалист</span>
                 <div class="step-value" id="valMaster">Не выбран</div>
@@ -489,6 +476,18 @@
               <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
             <div class="step-body" id="masterList"></div>
+          </section>
+
+          <section class="step" id="stepSvc">
+            <button type="button" class="step-head" data-toggle="stepSvc" aria-expanded="false">
+              <span class="step-num">2</span>
+              <span class="step-main">
+                <span class="step-label">Услуги</span>
+                <div class="step-value" id="valSvc">Не выбраны</div>
+              </span>
+              <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div class="step-body" id="svcStepBody"></div>
           </section>
 
           <section class="step" id="stepWhen">
@@ -560,8 +559,8 @@
 
       <div class="modal-foot" id="modalFoot">
         <div class="mf-info">
-          <div class="mf-price" id="mfPrice">Выберите услуги</div>
-          <div class="mf-sub" id="mfSub">Шаг 1 из 3 · услуги</div>
+          <div class="mf-price" id="mfPrice">Выберите мастера</div>
+          <div class="mf-sub" id="mfSub">Шаг 1 из 3 · специалист</div>
         </div>
         <button type="button" class="btn brass mf-btn" id="mfBtn">Продолжить</button>
       </div>
@@ -602,25 +601,25 @@
       {id:"beard",     name:"Коррекция бороды",                          dur:30,  prices:{barber:400,  top:600}},
       {id:"beardshave",name:"Коррекция бороды с подбриванием",           dur:45,  prices:{barber:600,  top:700}},
       {id:"shave",     name:"Бритьё",                                    dur:45,  prices:{barber:900,  top:900}},
-      {id:"camoHair",  name:"Камуфляж седины (волос)",                   dur:30,  prices:{barber:500,  top:500}},
+      {id:"camoHair",  name:"Камуфляж седины (волосы)",                  dur:40,  prices:{barber:500,  top:500}},
       {id:"camoBeard", name:"Камуфляж седины (борода)",                  dur:30,  prices:{barber:450,  top:450}},
+      {id:"waxEars",   name:"Воск: уши",                                 dur:15,  prices:{barber:300,  top:300}},
+      {id:"waxNose",   name:"Воск: нос",                                 dur:10,  prices:{barber:200,  top:200}},
+      {id:"waxBrows",  name:"Воск: брови",                               dur:15,  prices:{barber:200,  top:200}},
+      {id:"waxNeck",   name:"Воск: шея",                                 dur:20,  prices:{barber:500,  top:500}},
       {id:"edge",      name:"Окантовка с подбриванием",                  dur:20,  prices:{barber:250,  top:250}},
       {id:"wash",      name:"Мытьё и укладка волос",                     dur:20,  prices:{barber:150,  top:200}},
       {id:"pkgFriends",name:"Друг+друг",                                 dur:120, prices:{barber:1300, top:1900}, group:"combo", includes:["haircut"]},
       {id:"pkgFather", name:"Отец+сын (3–11 лет)",                       dur:90,  prices:{barber:1200, top:1800}, group:"combo", includes:["haircut","kids"]},
       {id:"pkgHB",     name:"Стрижка + коррекция бороды",                dur:90,  prices:{barber:1000, top:1400}, group:"combo", includes:["haircut","beard"]},
-      {id:"pkgHBS",    name:"Стрижка + коррекция бороды с подбриванием", dur:105, prices:{barber:1100, top:1600}, group:"combo", includes:["haircut","beardshave"]},
-      {id:"waxEars",   name:"Воск — уши",   short:"Уши",   dur:15, prices:{barber:300, top:300}, group:"wax"},
-      {id:"waxNose",   name:"Воск — нос",   short:"Нос",   dur:15, prices:{barber:200, top:200}, group:"wax"},
-      {id:"waxBrows",  name:"Воск — брови", short:"Брови", dur:15, prices:{barber:200, top:200}, group:"wax"},
-      {id:"waxNeck",   name:"Воск — шея",   short:"Шея",   dur:15, prices:{barber:500, top:500}, group:"wax"}
+      {id:"pkgHBS",    name:"Стрижка + коррекция бороды с подбриванием", dur:105, prices:{barber:1100, top:1600}, group:"combo", includes:["haircut","beardshave"]}
     ];
 
     var SVC_GROUPS = [
       {id:"hair",  name:"Стрижки",       ids:["haircut","kids","clipper","wash"]},
-      {id:"beard", name:"Борода",        ids:["beard","beardshave","shave","camoBeard","edge"]},
+      {id:"beard", name:"Борода",        ids:["beard","beardshave","shave","edge"]},
       {id:"combo", name:"Комплексы",     ids:["pkgFriends","pkgFather","pkgHB","pkgHBS"]},
-      {id:"extra", name:"Дополнительно", ids:["camoHair","waxEars","waxNose","waxBrows","waxNeck"]}
+      {id:"extra", name:"Дополнительно", ids:["camoHair","camoBeard","waxEars","waxNose","waxBrows","waxNeck"]}
     ];
     function groupOf(id){
       for(var i=0;i<SVC_GROUPS.length;i++) if(SVC_GROUPS[i].ids.indexOf(id)>=0) return SVC_GROUPS[i].id;
@@ -814,10 +813,6 @@
       if(!dr) return false;
       if(masterById(dr.master)) state.master = dr.master;
       (dr.services||[]).forEach(function(id){ if(svcById(id)) state.services[id]=true; });
-      /* пакеты и входящие в них услуги не держим одновременно */
-      SERVICES.forEach(function(s){
-        if(s.includes && state.services[s.id]) s.includes.forEach(function(x){ delete state.services[x]; });
-      });
       var d = parseKey(dr.dateKey);
       if(d && dateKey(d) >= dateKey(tzNow().date)) state.date = d;
       if(state.date && typeof dr.time==="number") state.time = dr.time;
@@ -838,53 +833,12 @@
     }
     function hideNotice(){ $("notice").hidden = true; }
 
-    /* ---------------- service selection rules ---------------- */
-    function selectedCombo(){
-      var sel = selectedServices();
-      for(var i=0;i<sel.length;i++) if(sel[i].includes) return sel[i];
-      return null;
-    }
-    function svcDisabled(s){
-      if(state.services[s.id]) return false;
-      /* Недоступна только услуга, которая уже входит в выбранный комплекс:
-         комплексы не блокируются — выбор другого комплекса заменяет текущий. */
-      var c = selectedCombo();
-      return !!(c && c.includes.indexOf(s.id)>=0);
-    }
-    /* Включение услуги с правилами комплексов. Возвращает список заменённых услуг. */
+    /* ---------------- service selection ---------------- */
+    /* Никаких ограничений: услуги и комплексы выбираются в любом сочетании —
+       можно несколько комплексов сразу и любые услуги рядом с ними. */
     function turnOnService(s){
-      var replaced = [];
       state.services[s.id] = true;
-      if(s.includes){
-        SERVICES.forEach(function(o){
-          if(o.id===s.id || !state.services[o.id]) return;
-          if(o.includes || s.includes.indexOf(o.id)>=0){
-            replaced.push(o.name);
-            delete state.services[o.id];
-          }
-        });
-      } else {
-        /* обычная услуга не может стоять рядом с комплексом, в который входит */
-        var c = selectedCombo();
-        if(c && c.includes.indexOf(s.id)>=0) delete state.services[s.id];
-      }
-      return replaced;
-    }
-    /* Комплекс выгоднее отдельных услуг: все входящие услуги выбраны по отдельности,
-       а комплекс из прайса стоит дешевле их суммы — предлагаем замену. */
-    function bestBundle(){
-      var best = null;
-      SERVICES.forEach(function(s){
-        if(!s.includes || state.services[s.id]) return;
-        var allIn = s.includes.every(function(id){ return !!state.services[id]; });
-        if(!allIn) return;
-        var comboP = svcPrice(s), sum = 0;
-        s.includes.forEach(function(id){ sum += svcPrice(svcById(id)).v; });
-        if(comboP.v < sum && (!best || (sum - comboP.v) > best.save)){
-          best = {combo:s, price:comboP.v, from:comboP.from, sum:sum, save:sum - comboP.v};
-        }
-      });
-      return best;
+      return [];
     }
 
     /* ---------------- page price list ---------------- */
@@ -912,22 +866,9 @@
           var s = svcById(this.getAttribute("data-pagesvc"));
           if(!s) return;
           if(!state.services[s.id]){
-            if(svcDisabled(s)){
-              var c = selectedCombo();
-              openBooking();
-              openStep("stepSvc");
-              svcOpen = groupOf(s.id);
-              renderServices();
-              showNotice("Услуга «"+s.name+"» уже входит в выбранный комплекс «"+(c?c.name:"")+"» — сначала снимите выбранный комплекс, чтобы выбрать её отдельно.");
-              return;
-            }
-            var replaced = turnOnService(s);
+            turnOnService(s);
             svcOpen = groupOf(s.id);
             onSelectionChanged("services");
-            if(replaced.length){
-              showNotice("Выбран комплекс «"+s.name+"» — он заменил: "+replaced.join(", ")
-                +". Одновременно можно выбрать только один комплекс.");
-            }
           }
           openBooking();
           openStep("stepSvc"); /* запись открывается сразу на шаге услуг, услуга уже выбрана */
@@ -945,20 +886,9 @@
           + '<span class="who"><span class="n">'+esc(displayName)+'</span>'+(note?'<div class="d">'+esc(note)+'</div>':"")+'</span>'
           + '<span class="radio"></span></button>';
       }
-      var chosen = selectedServices();
       var html = "";
       CATS.forEach(function(c){
-        var priceLine;
-        if(chosen.length){
-          var t = 0;
-          chosen.forEach(function(s){ t += s.prices[c.id]; });
-          priceLine = "выбранное — "+fmtPrice(t);
-        } else {
-          var min = Infinity;
-          SERVICES.forEach(function(s){ if(s.prices[c.id] < min) min = s.prices[c.id]; });
-          priceLine = "услуги по цене от "+fmtPrice(min);
-        }
-        html += '<div class="cat-card"><div class="cat-head"><span class="cat-name">'+esc(c.name)+'</span><span class="cat-price">'+priceLine+'</span></div>';
+        html += '<div class="cat-card"><div class="cat-head"><span class="cat-name">'+esc(c.name)+'</span></div>';
         html += opt(masterById("cat:"+c.id), "Любой", "Первый освободившийся");
         MASTERS.forEach(function(m){
           if(m.cat===c.id && m.id.indexOf("cat:")!==0) html += opt(m, m.name, "");
@@ -971,7 +901,7 @@
         btns[i].addEventListener("click", function(){
           state.master = this.getAttribute("data-master");
           onSelectionChanged("master");
-          openStep("stepWhen");
+          openStep("stepSvc"); /* мастер выбран первым — дальше услуги */
         });
       }
     }
@@ -1082,11 +1012,11 @@
       }
     }
 
-    /* ---------------- render: services (modal step 1) ---------------- */
+    /* ---------------- render: services (modal step 2) ---------------- */
     var svcOpen = "hair";
     var CHEV_SVG = '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
     function renderServices(){
-      var html = '<p class="hint" style="margin:6px 0 2px">Цены — «от»; точная зависит от категории мастера (шаг 2). Комплекс — только один: другой заменит выбранный.</p>';
+      var html = '<p class="hint" style="margin:6px 0 2px">Можно выбрать несколько услуг и комплексов — в любом сочетании.</p>';
       SVC_GROUPS.forEach(function(g){
         var items = g.ids.map(svcById).filter(function(s){ return !!s; });
         var selCount = 0;
@@ -1099,49 +1029,50 @@
           + CHEV_SVG + '</button>'
           + '<div class="svc-gbody">';
         items.forEach(function(s){
-          var sel = !!state.services[s.id], dis = svcDisabled(s);
+          var sel = !!state.services[s.id];
           var p = svcPrice(s);
-          var combo = selectedCombo();
-          var note = "";
-          if(dis && combo){
-            note = 'Входит в комплекс «'+esc(combo.name)+'» — сначала снимите выбранный комплекс, чтобы выбрать её отдельно';
-          } else if(!sel && s.includes && combo){
-            note = 'Заменит выбранный комплекс «'+esc(combo.name)+'»';
-          }
-          html += '<button type="button" class="svc'+(sel?" sel":"")+'" data-svc="'+s.id+'" aria-pressed="'+(sel?"true":"false")+'"'+(dis?" disabled":"")+'>'
-            + '<span class="inf"><span class="n">'+esc(s.name)+'</span>'+(note?'<div class="d">'+note+'</div>':"")+'</span>'
+          html += '<button type="button" class="svc'+(sel?" sel":"")+'" data-svc="'+s.id+'" aria-pressed="'+(sel?"true":"false")+'">'
+            + '<span class="inf"><span class="n">'+esc(s.name)+'</span></span>'
             + '<span class="p">'+(p.from?"от ":"")+fmtPrice(p.v)+'</span>'
             + '<span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>'
             + '</button>';
         });
         html += '</div></div>';
       });
-      var bb = bestBundle();
-      if(bb){
-        html += '<div class="bundle-hint" role="status"><p>Эти услуги доступны комплексом «'
-          + esc(bb.combo.name)+'» по цене '+(bb.from?"от ":"")+fmtPrice(bb.price)
-          + ' — на '+fmtPrice(bb.save)+' дешевле, чем по отдельности.</p>'
-          + '<button type="button" class="bundle-swap" id="bundleSwap">Заменить на комплекс</button></div>';
-      }
+      /* Необязательное предложение: если все услуги комплекса уже выбраны по отдельности
+         и комплекс дешевле — показать подсказку. Сама она ничего не меняет и не блокирует:
+         замена происходит только по нажатию кнопки. */
+      SERVICES.forEach(function(b){
+        if(!b.includes || state.services[b.id]) return;
+        var allIn = b.includes.every(function(id){ return !!state.services[id]; });
+        if(!allIn) return;
+        var sum = 0;
+        b.includes.forEach(function(id){ sum += svcPrice(svcById(id)).v; });
+        var bp = svcPrice(b);
+        if(bp.v >= sum) return;
+        html += '<div class="bundle-hint"><p>Эти услуги доступны комплексом «'+esc(b.name)+'» по цене '
+          + (bp.from?"от ":"")+fmtPrice(bp.v)+' — дешевле на '+fmtPrice(sum-bp.v)
+          + '. Можно оставить и так: само ничего не изменится.</p>'
+          + '<button type="button" class="bundle-swap" data-bundle="'+b.id+'">Заменить на комплекс</button></div>';
+      });
       var anySvc = selectedServices().length>0;
       html += '<button type="button" class="svc-next" id="svcNext"'+(anySvc?"":" disabled")+'>Далее</button>';
       $("svcStepBody").innerHTML = html;
-      var swapBtn = $("bundleSwap");
-      if(swapBtn){
-        swapBtn.addEventListener("click", function(){
-          var b = bestBundle();
-          if(!b) return;
-          b.combo.includes.forEach(function(id){ delete state.services[id]; });
-          state.services[b.combo.id] = true;
-          svcOpen = "combo"; /* открыть группу, чтобы было видно выбранный комплекс */
+      $("svcNext").addEventListener("click", function(){
+        if(!selectedServices().length) return;
+        openStep("stepWhen");
+        $("stepWhen").scrollIntoView({behavior:"smooth", block:"nearest"});
+      });
+      var swapBtns = $("svcStepBody").querySelectorAll("[data-bundle]");
+      for(var si=0; si<swapBtns.length; si++){
+        swapBtns[si].addEventListener("click", function(){
+          var b = svcById(this.getAttribute("data-bundle"));
+          if(!b || !b.includes) return;
+          b.includes.forEach(function(id){ delete state.services[id]; });
+          state.services[b.id] = true;
           onSelectionChanged("services");
         });
       }
-      $("svcNext").addEventListener("click", function(){
-        if(!selectedServices().length) return;
-        openStep("stepMaster");
-        $("stepMaster").scrollIntoView({behavior:"smooth", block:"nearest"});
-      });
       var gbtns = $("svcStepBody").querySelectorAll("[data-svcgroup]");
       for(var gi=0; gi<gbtns.length; gi++){
         gbtns[gi].addEventListener("click", function(){
@@ -1156,12 +1087,7 @@
           var id = this.getAttribute("data-svc");
           var s = svcById(id);
           if(!state.services[id]){
-            var replaced = turnOnService(s);
-            if(replaced.length){
-              showNotice("Выбран комплекс «"+s.name+"» — он заменил: "+replaced.join(", ")
-                +". Одновременно можно выбрать только один комплекс.");
-              svcOpen = "combo"; /* показать выбранный комплекс в его группе */
-            }
+            turnOnService(s);
           } else {
             state.services[id] = false;
             delete state.services[id];
@@ -1233,7 +1159,7 @@
           rows += '<div class="sum-row"><span>Начало</span><b>'+fmtTime(state.time)+'</b></div>';
         }
         rows += '<div class="sum-row total"><span>Итого</span><b>'+fmtTotal()+'</b></div>';
-        if(priceIsFrom()) rows += '<p class="hint" style="margin-top:8px">«От» — цена по категории «Цирюльник»; точная — после выбора мастера в шаге 2.</p>';
+        if(priceIsFrom()) rows += '<p class="hint" style="margin-top:8px">«От» — цена по категории «Цирюльник»; точная — после выбора мастера в шаге 1.</p>';
         sum.innerHTML = rows;
         sum.classList.add("show");
       } else {
@@ -1250,7 +1176,7 @@
       foot.classList.toggle("show", show);
       if(!show) return;
       var sel = selectedServices();
-      $("mfPrice").textContent = sel.length ? fmtTotal() : "Выберите услуги";
+      $("mfPrice").textContent = sel.length ? fmtTotal() : (state.master==="any" ? "Выберите мастера" : "Выберите услуги");
       var sub = $("mfSub"), btn = $("mfBtn");
       if(state.view==="form"){
         sub.textContent = bookingSummaryText();
@@ -1262,8 +1188,11 @@
       if(ready()){
         sub.textContent = fmtDateFull(state.date)+", начало в "+fmtTime(state.time)+" · "+masterDisplayLabel();
         btn.textContent = "Продолжить";
+      } else if(state.master==="any"){
+        sub.textContent = state.rescheduleNum ? "Перенос записи K-"+state.rescheduleNum : "Шаг 1 из 3 · специалист";
+        btn.textContent = "Продолжить";
       } else if(!sel.length){
-        sub.textContent = state.rescheduleNum ? "Перенос записи K-"+state.rescheduleNum : "Шаг 1 из 3 · услуги";
+        sub.textContent = "Шаг 2 из 3 · услуги";
         btn.textContent = "Продолжить";
       } else if(!state.date || state.time==null){
         sub.textContent = "Шаг 3 из 3 · дата и время";
@@ -1276,7 +1205,8 @@
     $("mfBtn").addEventListener("click", function(){
       if(state.view==="form"){ $("confirmBtn").click(); return; }
       if(ready()){ goToForm(); return; }
-      if(!selectedServices().length){ openStep("stepSvc"); $("stepSvc").scrollIntoView({behavior:"smooth", block:"nearest"}); }
+      if(state.master==="any"){ openStep("stepMaster"); $("stepMaster").scrollIntoView({behavior:"smooth", block:"nearest"}); }
+      else if(!selectedServices().length){ openStep("stepSvc"); $("stepSvc").scrollIntoView({behavior:"smooth", block:"nearest"}); }
       else { openStep("stepWhen"); $("stepWhen").scrollIntoView({behavior:"smooth", block:"nearest"}); }
     });
 
@@ -1615,7 +1545,7 @@
       $("fName").value = ""; $("fPhone").value = ""; $("fComment").value = "";
       saveDraft();
       showView("flow");
-      openStep("stepSvc");
+      openStep("stepMaster");
       renderAll();
     });
 
