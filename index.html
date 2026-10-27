@@ -133,7 +133,12 @@
       body.modal-open{overflow:hidden}
       .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(4,4,5,.78);display:flex;align-items:center;justify-content:center;padding:24px}
       .modal-panel{background:var(--bg);border:1px solid var(--line2);width:100%;max-width:1060px;max-height:calc(100dvh - 48px);display:flex;flex-direction:column;border-radius:var(--radius)}
-      .modal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 28px;border-bottom:1px solid var(--line);flex:none}
+      .modal-head{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 28px;border-bottom:1px solid var(--line);flex:none}
+      .modal-head>*{position:relative;z-index:1}
+      /* эмблема-водяной знак в шапке окна — как печать на главной */
+      .modal-seal{position:absolute;right:-42px;top:50%;transform:translateY(-50%);width:148px;height:148px;border-radius:50%;
+        object-fit:contain;filter:invert(1) grayscale(1);mix-blend-mode:screen;opacity:.13;pointer-events:none;z-index:0}
+      @media (max-width:720px){ .modal-seal{width:118px;height:118px;right:-36px;opacity:.11} }
       .modal-head h2{font-size:24px}
       .modal-head .sub{font-size:13.5px;color:var(--muted);margin-top:2px}
       .modal-x{background:none;border:1px solid var(--line2);color:var(--text);width:38px;height:38px;flex:none;font-size:22px;line-height:1;cursor:pointer;border-radius:var(--radius)}
@@ -200,7 +205,7 @@
       .bundle-swap{background:none;border:1px solid var(--brass);color:var(--brass-text);
         border-radius:var(--radius);padding:10px 16px;font-size:14px;font-weight:600;min-height:44px;cursor:pointer}
       .svc-next{display:block;width:100%;margin-top:14px;padding:14px;
-        background:var(--brass);color:#141310;border:0;border-radius:var(--radius);
+        background:var(--btn-bg);color:var(--btn-text);border:0;border-radius:var(--radius);
         font-size:15.5px;font-weight:700;min-height:50px;cursor:pointer}
       .svc-next:disabled{background:var(--panel2);color:var(--faint);cursor:default}
 
@@ -220,9 +225,10 @@
         background:transparent;border:0;border-bottom:1px solid var(--line);
         color:var(--text);padding:11px 4px;font-size:15px;min-height:52px;cursor:pointer}
       .opt .avatar{flex:none;width:42px;height:42px;border-radius:50%;
-        border:1px solid var(--brass-deep);background:radial-gradient(circle at 34% 28%, #26221c, #12100c 74%);
-        color:var(--brass-text);font-family:var(--serif);font-size:16px;
+        border:1px solid rgba(176,141,87,.38);background:radial-gradient(circle at 34% 28%, #1d1b17, #121110 76%);
+        color:#bfae8d;font-family:var(--serif);font-size:15.5px;letter-spacing:.01em;
         display:flex;align-items:center;justify-content:center}
+      .opt.sel .avatar{border-color:rgba(201,166,104,.75);color:var(--brass-text)}
       .opt .who{flex:1;min-width:0}
       .opt .who .n{font-weight:600}
       .opt .who .d{font-size:13px;color:var(--muted);margin-top:1px}
@@ -499,6 +505,7 @@
   <div class="modal-overlay" id="bookingModal" style="display:none" role="dialog" aria-modal="true" aria-label="Запись в цирюльню «Князь»">
     <div class="modal-panel">
       <div class="modal-head">
+        <img class="modal-seal" src="assets/logo.jpg" alt="" />
         <div>
           <h2>Запись</h2>
           <div class="sub">Выберите мастера, услуги и удобное время</div>
@@ -580,7 +587,7 @@
             <p class="ferr" id="consentErr"></p>
           </div>
           <div class="form-actions">
-            <button type="button" class="btn brass block" id="confirmBtn">Подтвердить запись</button>
+            <button type="button" class="btn block" id="confirmBtn">Подтвердить запись</button>
             <button type="button" class="btn ghost block" id="backBtn">Назад к выбору</button>
           </div>
         </div>
@@ -607,7 +614,7 @@
           <div class="mf-price" id="mfPrice">Выберите мастера</div>
           <div class="mf-sub" id="mfSub">Шаг 1 из 3 · специалист</div>
         </div>
-        <button type="button" class="btn brass mf-btn" id="mfBtn">Продолжить</button>
+        <button type="button" class="btn mf-btn" id="mfBtn">Продолжить</button>
       </div>
     </div>
   </div>
