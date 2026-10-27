@@ -104,6 +104,8 @@
         .svc-prices .p{min-width:0}
       }
 
+      .price-toggle{margin-top:24px}
+
       /* Conditions */
       .cond{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
       .cond div{background:var(--panel);padding:20px}
@@ -409,6 +411,9 @@
         <span class="note">Цены — по категории мастера. Нажмите на услугу, чтобы записаться.</span>
       </div>
       <div id="svcList"></div>
+      <div class="price-toggle">
+        <button type="button" class="btn ghost" id="priceToggle" aria-expanded="false" aria-controls="svcList">Весь прайс</button>
+      </div>
     </div>
   </section>
 
@@ -603,10 +608,10 @@
       {id:"shave",     name:"Бритьё",                                    dur:45,  prices:{barber:900,  top:900}},
       {id:"camoHair",  name:"Камуфляж седины (волосы)",                  dur:40,  prices:{barber:500,  top:500}},
       {id:"camoBeard", name:"Камуфляж седины (борода)",                  dur:30,  prices:{barber:450,  top:450}},
-      {id:"waxEars",   name:"Воск: уши",                                 dur:15,  prices:{barber:300,  top:300}},
-      {id:"waxNose",   name:"Воск: нос",                                 dur:10,  prices:{barber:200,  top:200}},
-      {id:"waxBrows",  name:"Воск: брови",                               dur:15,  prices:{barber:200,  top:200}},
-      {id:"waxNeck",   name:"Воск: шея",                                 dur:20,  prices:{barber:500,  top:500}},
+      {id:"waxEars",   name:"Удаление волос воском — уши",               dur:15,  prices:{barber:300,  top:300}},
+      {id:"waxNose",   name:"Удаление волос воском — нос",               dur:10,  prices:{barber:200,  top:200}},
+      {id:"waxBrows",  name:"Удаление волос воском — брови",             dur:15,  prices:{barber:200,  top:200}},
+      {id:"waxNeck",   name:"Удаление волос воском — шея",               dur:20,  prices:{barber:500,  top:500}},
       {id:"edge",      name:"Окантовка с подбриванием",                  dur:20,  prices:{barber:250,  top:250}},
       {id:"wash",      name:"Мытьё и укладка волос",                     dur:20,  prices:{barber:150,  top:200}},
       {id:"pkgFriends",name:"Друг+друг",                                 dur:120, prices:{barber:1300, top:1900}, group:"combo", includes:["haircut"]},
@@ -842,14 +847,20 @@
     }
 
     /* ---------------- page price list ---------------- */
+    /* На главной — только популярные услуги и все комплексы;
+       остальной прайс открывается кнопкой «Весь прайс». */
+    var POPULAR = ["haircut","kids","clipper","beard","beardshave","shave",
+                   "pkgFriends","pkgFather","pkgHB","pkgHBS"];
+    var pageFullPrice = false;
     function renderPagePrice(){
       var html = "";
       SVC_GROUPS.forEach(function(g){
-        html += '<div class="pgroup">'+g.name+'</div>';
+        var groupHtml = "";
         g.ids.forEach(function(id){
           var s = svcById(id);
           if(!s) return;
-          html += '<button type="button" class="svc-row" data-pagesvc="'+s.id+'" aria-label="Записаться: '+esc(s.name)+'">'
+          if(!pageFullPrice && POPULAR.indexOf(id)<0) return;
+          groupHtml += '<button type="button" class="svc-row" data-pagesvc="'+s.id+'" aria-label="Записаться: '+esc(s.name)+'">'
             + '<span><span class="svc-name">'+esc(s.name)+'</span>'
             + (s.includes ? '<div class="svc-note">Комплекс услуг</div>' : '')
             + '</span>'
@@ -858,8 +869,12 @@
             + '<span class="p"><div class="cap">Топ-цирюльник</div><div class="val">'+fmtPrice(s.prices.top)+'</div></span>'
             + '</span></button>';
         });
+        if(groupHtml) html += '<div class="pgroup">'+g.name+'</div>' + groupHtml;
       });
       $("svcList").innerHTML = html;
+      var toggle = $("priceToggle");
+      toggle.textContent = pageFullPrice ? "Свернуть прайс" : "Весь прайс";
+      toggle.setAttribute("aria-expanded", pageFullPrice ? "true" : "false");
       var rows = $("svcList").querySelectorAll("[data-pagesvc]");
       for(var i=0;i<rows.length;i++){
         rows[i].addEventListener("click", function(){
@@ -1572,6 +1587,10 @@
       state.time = null;
     }
     renderOpenState();
+    $("priceToggle").addEventListener("click", function(){
+      pageFullPrice = !pageFullPrice;
+      renderPagePrice();
+    });
     renderPagePrice();
     showView("flow");
     renderAll();
