@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/jpeg" href="/assets/logo.jpg" />
+  <title>Панель владельца — Князь</title>
+  <link rel="stylesheet" href="/admin/admin.css" />
+</head>
+<body>
+  <header class="admin-head" id="adminHead" hidden>
+    <div class="wrap head-in">
+      <a class="brand" href="/admin/bookings" data-nav>
+        <img src="/assets/logo.jpg" alt="Логотип цирюльни «Князь»" />Князь
+        <span class="brand-sub">Панель владельца</span>
+      </a>
+      <div class="head-actions">
+        <a class="btn ghost small" href="/" target="_blank" rel="noopener">Открыть сайт</a>
+        <button type="button" class="btn ghost small" id="logoutBtn">Выйти</button>
+      </div>
+    </div>
+    <nav class="tabs wrap" id="adminTabs" aria-label="Разделы панели">
+      <a href="/admin/bookings" data-nav data-route="bookings">Записи</a>
+      <a href="/admin/services" data-nav data-route="services">Услуги</a>
+      <a href="/admin/masters" data-nav data-route="masters">Мастера</a>
+      <a href="/admin/media" data-nav data-route="media">Медиатека</a>
+      <a href="/admin/settings" data-nav data-route="settings">Настройки</a>
+    </nav>
+  </header>
+
+  <main class="wrap" id="view" aria-live="polite"></main>
+
+  <footer class="admin-foot wrap" id="adminFoot" hidden>
+    <span>Цирюльня «Князь», Астрахань, пл. Свободы, 45</span>
+    <button type="button" class="legal-link" id="footPolicy">Политика обработки данных</button>
+  </footer>
+
+  <div id="modalRoot"></div>
+  <div id="toastRoot" aria-live="polite"></div>
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

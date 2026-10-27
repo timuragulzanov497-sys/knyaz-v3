@@ -1,0 +1,23 @@
+{
+  "name": "knyaz-v3-admin",
+  "version": "1.0.0",
+  "description": "Цирюльня «Князь» V3 — публичная страница записи + админ-панель /admin с серверной базой (Postgres) и авторизацией владельца.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "seed": "node db/seed.js",
+    "test": "node test/smoke.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "pg": "^8.23.1"
+  }
+}
