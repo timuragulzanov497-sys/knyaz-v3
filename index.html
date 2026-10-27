@@ -336,7 +336,7 @@
       <div class="meta">
         <div><b>пл. Свободы, 45</b> · 1 этаж</div>
         <div id="heroHours"><b>Ежедневно 10:00–21:00</b></div>
-        <div>Рейтинг <b>5,0</b> · 127 оценок, 106 отзывов на 2ГИС</div>
+        <div>Рейтинг <b id="heroRating">5,0</b> · <span id="heroRatings">127 оценок</span>, <span id="heroReviews">106 отзывов</span> на 2ГИС</div>
       </div>
       <div class="cta">
         <button type="button" class="btn" data-book>Записаться</button>
@@ -376,7 +376,7 @@
         <div><div class="cap">Адрес</div><div class="val">Астрахань, пл. Свободы, 45 · 1 этаж</div></div>
         <div><div class="cap">Телефон</div><div class="val"><a href="tel:+79171810484">+7 917 181-04-84</a></div></div>
         <div><div class="cap">Режим работы</div><div class="val" id="contactHours">Ежедневно 10:00–21:00</div></div>
-        <div><div class="cap">Отзывы</div><div class="val"><a href="https://2gis.ru/astrakhan/firm/70000001048372338/tab/reviews" target="_blank" rel="noopener">5,0 на 2ГИС · 106 отзывов</a></div></div>
+        <div><div class="cap">Отзывы</div><div class="val"><a href="https://2gis.ru/astrakhan/firm/70000001048372338/tab/reviews" target="_blank" rel="noopener"><span id="contactRating">5,0</span> на 2ГИС · <span id="contactReviews">106 отзывов</span></a></div></div>
       </div>
       <div class="msg-actions">
         <a class="btn ghost" href="tel:+79171810484">Позвонить</a>
@@ -1574,6 +1574,67 @@
         ? "Ежедневно 10:00–21:00 · сейчас открыто"
         : "Ежедневно 10:00–21:00 · сейчас закрыто";
     }
+
+    /* ---------------- 2ГИС rating: из файла данных, без прямых запросов к API 2ГИС ----------------
+       При загрузке страница запрашивает ratings.json (рейтинг, число отзывов и число оценок).
+       Если файл недоступен или запрос не удался — остаются значения из разметки выше
+       (5,0 · 127 оценок, 106 отзывов). */
+    var RATINGS_URL = "https://raw.githubusercontent.com/timuragulzanov497-sys/knyaz-v3/main/data/ratings.json";
+    function pluralRu(n, one, few, many){
+      var m10 = Math.abs(n) % 10, m100 = Math.abs(n) % 100;
+      if(m10 === 1 && m100 !== 11) return one;
+      if(m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+      return many;
+    }
+    function fmtRatingVal(v){
+      var num = (typeof v === "string") ? parseFloat(v.replace(",", ".")) : Number(v);
+      if(!isFinite(num) || num <= 0 || num > 5) return null;
+      return num.toFixed(1).replace(".", ",");
+    }
+    function pickNum(obj, keys){
+      if(!obj || typeof obj !== "object") return null;
+      for(var i = 0; i < keys.length; i++){
+        var v = obj[keys[i]];
+        if(v !== undefined && v !== null && v !== ""){
+          var n = Number(String(v).replace(",", "."));
+          if(isFinite(n)) return n;
+        }
+      }
+      return null;
+    }
+    function applyRatings(data){
+      if(!data || typeof data !== "object") return;
+      var src = (data.data && typeof data.data === "object") ? data.data : data;
+      var ratingRaw = pickNum(src, ["rating", "score", "average", "avg", "value"]);
+      var reviewsRaw = pickNum(src, ["reviews", "reviewsCount", "reviewCount", "reviews_count", "review_count", "countReviews"]);
+      var ratingsRaw = pickNum(src, ["ratings", "ratingsCount", "ratingCount", "ratings_count", "rating_count", "votes", "votesCount", "countRatings", "marks", "marksCount"]);
+      var ratingTxt = (ratingRaw !== null) ? fmtRatingVal(ratingRaw) : null;
+      if(ratingTxt){
+        var hr = $("heroRating"); if(hr) hr.textContent = ratingTxt;
+        var cr = $("contactRating"); if(cr) cr.textContent = ratingTxt;
+      }
+      if(reviewsRaw !== null && reviewsRaw >= 0){
+        var rv = Math.round(reviewsRaw);
+        var rvTxt = rv + " " + pluralRu(rv, "отзыв", "отзыва", "отзывов");
+        var hrv = $("heroReviews"); if(hrv) hrv.textContent = rvTxt;
+        var crv = $("contactReviews"); if(crv) crv.textContent = rvTxt;
+      }
+      if(ratingsRaw !== null && ratingsRaw >= 0){
+        var rt = Math.round(ratingsRaw);
+        var rtTxt = rt + " " + pluralRu(rt, "оценка", "оценки", "оценок");
+        var hrt = $("heroRatings"); if(hrt) hrt.textContent = rtTxt;
+      }
+    }
+    function loadRatings(){
+      if(typeof fetch !== "function") return;
+      try{
+        fetch(RATINGS_URL, {cache:"no-store"})
+          .then(function(res){ if(!res.ok) throw new Error("ratings http " + res.status); return res.json(); })
+          .then(function(data){ applyRatings(data); })
+          .catch(function(){ /* файл недоступен — остаются значения из разметки */ });
+      }catch(e){ /* остаются значения из разметки */ }
+    }
+    loadRatings();
 
     /* ---------------- init ---------------- */
     var hadDraft = restoreDraft();
