@@ -124,8 +124,13 @@ export async function cancelBooking(req, res, num) {
 }
 
 export default async function handler(req, res) {
-  // Vercel file-routing: /api/public/bookings и /api/public/bookings/:num/cancel
-  // попадают в этот файл; действие — по пути запроса.
+  // Путь отмены приходит двумя способами:
+  // — локально (server.js): /api/public/bookings/:num/cancel, номер — из URL;
+  // — на Vercel: rewrite в vercel.json переписывает этот путь на
+  //   /api/public/bookings?cancelNum=:num (сам файл bookings.js ловит
+  //   только точный /api/public/bookings, поэтому без rewrite была бы 404).
+  const q = req.query || {};
+  if (q.cancelNum) return cancelBooking(req, res, parseInt(q.cancelNum, 10));
   const url = String(req.url || "");
   const m = url.match(/\/bookings\/(\d+)\/cancel/);
   if (m) return cancelBooking(req, res, parseInt(m[1], 10));

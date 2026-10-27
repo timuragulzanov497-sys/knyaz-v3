@@ -203,3 +203,22 @@
 - Первый запрос к API сам применяет схему и seed, если каталог пуст
   (`PgStore.init()`).
 - Удаление услуги/мастера — soft-delete (`active=false, deleted_at=now()`).
+
+## Лимит функций Vercel (Hobby — 12)
+
+На тарифе Hobby в одном деплое не больше 12 Serverless Functions.
+Поэтому 9 эндпоинтов админки собраны в одну функцию `api/admin-router.js`:
+`vercel.json` переписывает `/api/admin/*` на `/api/admin-router?r=...`,
+а роутер вызывает нужный хендлер из `api/_lib/handlers/admin/`.
+Итого функций в деплое — 9 из 12: `admin-router`, `auth/login`,
+`auth/logout`, `auth/me`, `media/[id]`, `public/bookings`,
+`public/config`, `public/slots`, `setup`. Файлы в `api/_lib/`
+функциями не являются. Локальный `server.js` повторяет те же маршруты
+и дополнительно отдаёт `/api/admin-router` для проверки роутера.
+
+Отмена записи клиентом (`POST /api/public/bookings/:num/cancel`) — тоже
+через rewrite: файл `api/public/bookings.js` ловит только точный путь
+`/api/public/bookings`, поэтому `vercel.json` переписывает путь отмены на
+`/api/public/bookings?cancelNum=:num`, а хендлер смотрит `query.cancelNum`
+(локально номер берётся из самого URL). Без этого rewrite на Vercel
+отмена отдавала 404, хотя локально работала.
