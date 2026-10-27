@@ -45,11 +45,19 @@
       .head-phone{font-size:14px;text-decoration:none;white-space:nowrap;border-left:1px solid var(--line);padding-left:20px}
       @media (max-width:720px){ nav.main{display:none} .head-phone{display:none} .site-in .btn{margin-left:auto} }
 
-      /* Hero */
-      .hero{position:relative;color:var(--hero-text);background:#0a0a0b}
-      .hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(.5);opacity:.85}
-      .hero .shade{position:absolute;inset:0;background:rgba(5,5,6,.45)}
-      .hero-in{position:relative;padding-top:74px;padding-bottom:66px}
+      /* Hero — без фото: фон-«гравюра» в духе логотипа.
+         Справа — крупная эмблема-печать, обрезанная краем блока (видна не целиком),
+         вдоль низа — линейный силуэт зданий, растворяющийся влево, под текст. */
+      .hero{position:relative;color:var(--hero-text);background:#0a0a0b;overflow:hidden}
+      .hero-decor{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+      .hero-seal{position:absolute;right:-118px;top:-84px;width:452px;height:452px;border-radius:50%;
+        object-fit:contain;filter:invert(1) grayscale(1);mix-blend-mode:screen;opacity:.16}
+      .hero-sky{position:absolute;left:0;right:0;bottom:0;width:100%;height:196px;opacity:.6}
+      .hero-in{position:relative;z-index:1;padding-top:74px;padding-bottom:96px}
+      @media (max-width:720px){
+        .hero-seal{width:296px;height:296px;right:-104px;top:-64px;opacity:.13}
+        .hero-sky{height:128px}
+      }
       .hero h1{font-size:64px;line-height:1.02;letter-spacing:.01em}
       .hero .sub{font-size:19px;color:#d8d4c8;margin-top:10px}
       .hero .meta{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px 28px;font-size:15px;color:#c9c5b8}
@@ -59,7 +67,7 @@
       .hero .open-now{color:#b9cba6}
       .hero .closed-now{color:#e0a294}
       .hero .cta{margin-top:34px;display:flex;flex-wrap:wrap;gap:10px}
-      @media (max-width:720px){ .hero h1{font-size:44px} .hero-in{padding-top:52px;padding-bottom:46px} }
+      @media (max-width:720px){ .hero h1{font-size:44px} .hero-in{padding-top:52px;padding-bottom:64px} }
 
       .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
         background:var(--btn-bg);color:var(--btn-text);border:1px solid var(--btn-bg);
@@ -330,8 +338,54 @@
   </header>
 
   <div class="hero" id="top">
-    <img class="bg" src="assets/hero.webp" alt="Интерьер цирюльни «Князь» — кресла и зеркала" />
-    <div class="shade"></div>
+    <div class="hero-decor" aria-hidden="true">
+      <img class="hero-seal" src="assets/logo.jpg" alt="" />
+      <svg class="hero-sky" viewBox="0 0 1440 240" preserveAspectRatio="xMaxYMax slice" focusable="false">
+        <defs>
+          <pattern id="winPat" width="36" height="46" patternUnits="userSpaceOnUse">
+            <path d="M13.5 31 V16 a4.5 4.5 0 0 1 9 0 V31 Z" fill="none" stroke="#b08d57" stroke-width="1.1" />
+          </pattern>
+          <linearGradient id="skyGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#000" />
+            <stop offset=".38" stop-color="#000" />
+            <stop offset=".62" stop-color="#fff" />
+            <stop offset="1" stop-color="#fff" />
+          </linearGradient>
+          <mask id="skyMask">
+            <rect x="0" y="0" width="1440" height="240" fill="url(#skyGrad)" />
+          </mask>
+        </defs>
+        <g mask="url(#skyMask)" stroke="#b08d57" stroke-width="1.4">
+          <!-- фасад с треугольным фронтоном -->
+          <path d="M408 240 V152 H584 V240" fill="#0e0d0b" />
+          <rect x="416" y="160" width="160" height="80" fill="url(#winPat)" stroke="none" />
+          <path d="M400 152 H592 M438 152 L496 120 L554 152" fill="none" />
+          <!-- здание с куполом -->
+          <path d="M606 240 V146 H792 V240" fill="#0e0d0b" />
+          <rect x="614" y="154" width="170" height="86" fill="url(#winPat)" stroke="none" />
+          <path d="M598 146 H800 M652 146 a47 40 0 0 1 94 0 M699 106 V88" fill="none" />
+          <circle cx="699" cy="82" r="4" fill="none" />
+          <!-- башня с шатровой крышей -->
+          <path d="M822 240 V112 H916 V240" fill="#0e0d0b" />
+          <rect x="830" y="120" width="78" height="120" fill="url(#winPat)" stroke="none" />
+          <path d="M814 112 H924 M822 158 H916 M816 112 L869 50 L922 112" fill="none" />
+          <circle cx="869" cy="43" r="4.5" fill="none" />
+          <!-- длинный фасад с карнизом -->
+          <path d="M946 240 V164 H1146 V240" fill="#0e0d0b" />
+          <rect x="954" y="172" width="184" height="68" fill="url(#winPat)" stroke="none" />
+          <path d="M938 164 H1154 M1006 164 L1046 142 L1086 164" fill="none" />
+          <!-- фасад повыше, у правого края -->
+          <path d="M1172 240 V128 H1352 V240" fill="#0e0d0b" />
+          <rect x="1180" y="136" width="164" height="104" fill="url(#winPat)" stroke="none" />
+          <path d="M1164 128 H1360 M1172 152 H1352" fill="none" />
+          <!-- крайнее здание, обрезанное краем блока -->
+          <path d="M1376 240 V178 H1440 V240" fill="#0e0d0b" />
+          <path d="M1376 194 H1440" fill="none" />
+          <!-- линия земли -->
+          <path d="M360 240 H1440" fill="none" />
+        </g>
+      </svg>
+    </div>
     <div class="wrap hero-in">
       <h1>Князь</h1>
       <div class="sub">Цирюльня в Астрахани</div>
