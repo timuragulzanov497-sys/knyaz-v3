@@ -116,14 +116,14 @@
 
       /* ---------- Booking modal ---------- */
       body.modal-open{overflow:hidden}
-      .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(4,4,5,.78);display:flex;align-items:center;justify-content:center;padding:18px}
-      .modal-panel{background:var(--bg);border:1px solid var(--line2);width:100%;max-width:780px;max-height:calc(100dvh - 36px);display:flex;flex-direction:column;border-radius:var(--radius)}
-      .modal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 22px;border-bottom:1px solid var(--line);flex:none}
+      .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(4,4,5,.78);display:flex;align-items:center;justify-content:center;padding:24px}
+      .modal-panel{background:var(--bg);border:1px solid var(--line2);width:100%;max-width:1060px;max-height:calc(100dvh - 48px);display:flex;flex-direction:column;border-radius:var(--radius)}
+      .modal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 28px;border-bottom:1px solid var(--line);flex:none}
       .modal-head h2{font-size:24px}
       .modal-head .sub{font-size:13.5px;color:var(--muted);margin-top:2px}
       .modal-x{background:none;border:1px solid var(--line2);color:var(--text);width:38px;height:38px;flex:none;font-size:22px;line-height:1;cursor:pointer;border-radius:var(--radius)}
       .modal-x:hover{border-color:var(--brass);color:var(--brass-text)}
-      .modal-body{overflow-y:auto;padding:20px 22px 26px;flex:1;min-height:0}
+      .modal-body{overflow-y:auto;padding:22px 28px 28px;flex:1;min-height:0}
       @media (max-width:720px){
         .modal-overlay{padding:0}
         .modal-panel{max-height:none;height:100dvh;border:none;border-radius:0}
@@ -136,10 +136,11 @@
       .notice[hidden]{display:none}
       .hint{font-size:13.5px;color:var(--muted);margin-top:11px;line-height:1.5}
 
-      /* steps accordion */
-      .step{border:1px solid var(--line);background:var(--panel);margin-bottom:10px;border-radius:var(--radius)}
+      /* steps accordion — без рамок-карточек, только разделители между шагами */
+      .step{border-top:1px solid var(--line);padding:8px 0 16px}
+      .step:first-of-type{border-top:0;padding-top:0}
       .step-head{width:100%;background:none;border:0;color:var(--text);text-align:left;
-        display:flex;align-items:center;gap:13px;padding:15px 16px;min-height:56px;cursor:pointer}
+        display:flex;align-items:center;gap:13px;padding:12px 2px;min-height:52px;cursor:pointer}
       .step-num{flex:none;width:27px;height:27px;border-radius:50%;
         border:1px solid var(--brass-deep);color:var(--brass-text);
         display:flex;align-items:center;justify-content:center;
@@ -151,22 +152,22 @@
       .step.done .step-value{color:var(--brass-text)}
       .chev{flex:none;color:var(--faint);transition:transform .25s ease}
       .step.open>.step-head .chev{transform:rotate(180deg)}
-      .step-body{display:none;padding:2px 16px 16px;border-top:1px solid var(--line)}
+      .step-body{display:none;padding:2px 2px 4px}
       .step.open .step-body{display:block}
 
       /* services in modal */
-      .svc-group{margin-top:10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel2);overflow:hidden}
-      .svc-group:first-of-type{margin-top:8px}
-      .svc-ghead{width:100%;display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--text);padding:13px 14px;min-height:50px;text-align:left;cursor:pointer}
+      .svc-group{margin-top:16px}
+      .svc-group:first-of-type{margin-top:10px}
+      .svc-ghead{width:100%;display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--text);padding:9px 2px;min-height:44px;text-align:left;cursor:pointer}
       .svc-gname{flex:1;font-size:15.5px;font-weight:600}
       .svc-gcount{font-size:13px;color:var(--brass-text);font-weight:600;white-space:nowrap}
       .svc-ghead .chev{flex:none;color:var(--faint);transition:transform .25s ease}
       .svc-group.open .svc-ghead .chev{transform:rotate(180deg)}
-      .svc-gbody{display:none;padding:0 10px 10px}
+      .svc-gbody{display:none;padding:0}
       .svc-group.open .svc-gbody{display:block}
       .svc{width:100%;display:flex;align-items:center;gap:12px;text-align:left;
-        background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-        color:var(--text);padding:12px 13px;margin-top:8px;min-height:54px;cursor:pointer;font-size:15px}
+        background:transparent;border:0;border-bottom:1px solid var(--line);
+        color:var(--text);padding:12px 4px;min-height:52px;cursor:pointer;font-size:15px}
       .svc .inf{flex:1;min-width:0}
       .svc .n{font-size:15px;font-weight:600}
       .svc .d{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
@@ -174,7 +175,7 @@
       .svc .box{flex:none;width:22px;height:22px;border-radius:var(--radius);border:1.5px solid var(--faint);
         display:flex;align-items:center;justify-content:center;color:#141310}
       .svc .box svg{opacity:0}
-      .svc.sel{border-color:var(--brass);background:var(--panel2);box-shadow:inset 0 0 0 1px var(--brass)}
+      .svc.sel{background:rgba(176,141,87,.08)}
       .svc.sel .box{background:var(--brass);border-color:var(--brass)}
       .svc.sel .box svg{opacity:1}
       .svc:disabled{opacity:.45;cursor:default}
@@ -188,15 +189,22 @@
         font-size:15.5px;font-weight:700;min-height:50px;cursor:pointer}
       .svc-next:disabled{background:var(--panel2);color:var(--faint);cursor:default}
 
+      /* широкое окно: услуги и категории мастеров — в две колонки, окно заметно ниже */
+      @media (min-width:900px){
+        .svc-group.open .svc-gbody{display:grid;grid-template-columns:1fr 1fr;gap:0 30px}
+        .step.open #masterList{display:grid;grid-template-columns:1fr 1fr;gap:0 30px;align-items:start}
+        #masterList .cat-card{margin-top:6px}
+      }
+
       /* masters in modal */
-      .cat-card{margin-top:10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel2);padding:12px}
-      .cat-card:first-child{margin-top:6px}
-      .cat-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 2px 4px;flex-wrap:wrap}
+      .cat-card{margin-top:16px}
+      .cat-card:first-child{margin-top:8px}
+      .cat-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 2px 2px;flex-wrap:wrap}
       .cat-name{font-family:var(--serif);font-size:17.5px}
       .cat-price{font-size:13.5px;color:var(--brass-text);white-space:nowrap}
       .opt{width:100%;display:flex;align-items:center;gap:12px;text-align:left;
-        background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-        color:var(--text);padding:11px 13px;margin-top:8px;font-size:15px;min-height:54px;cursor:pointer}
+        background:transparent;border:0;border-bottom:1px solid var(--line);
+        color:var(--text);padding:11px 4px;font-size:15px;min-height:52px;cursor:pointer}
       .opt .avatar{flex:none;width:42px;height:42px;border-radius:50%;
         border:1px solid var(--brass-deep);background:radial-gradient(circle at 34% 28%, #26221c, #12100c 74%);
         color:var(--brass-text);font-family:var(--serif);font-size:16px;
@@ -205,7 +213,7 @@
       .opt .who .n{font-weight:600}
       .opt .who .d{font-size:13px;color:var(--muted);margin-top:1px}
       .opt .radio{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--faint);position:relative}
-      .opt.sel{border-color:var(--brass);background:var(--panel2);box-shadow:inset 0 0 0 1px var(--brass)}
+      .opt.sel{background:rgba(176,141,87,.08)}
       .opt.sel .radio{border-color:var(--brass)}
       .opt.sel .radio::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--brass)}
 
@@ -257,7 +265,7 @@
 
       /* modal footer bar */
       .modal-foot{flex:none;border-top:1px solid var(--line);background:var(--panel);
-        padding:12px 22px calc(12px + env(safe-area-inset-bottom));display:none;align-items:center;gap:14px}
+        padding:12px 28px calc(12px + env(safe-area-inset-bottom));display:none;align-items:center;gap:14px}
       .modal-foot.show{display:flex}
       .mf-info{flex:1;min-width:0}
       .mf-price{font-family:var(--serif);font-size:20px;color:var(--brass-text);line-height:1.15;white-space:nowrap}
@@ -279,6 +287,8 @@
       .err.show{display:block}
       .form-sum{font-size:14.5px;color:var(--muted);line-height:1.55;margin:0 0 18px}
       .form-actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+      /* подтверждение — в постоянно видимой нижней панели окна, дубль в форме не нужен */
+      #formView #confirmBtn{display:none}
       .consent{font-size:13.5px;color:var(--muted);line-height:1.55;margin:14px 0 0}
       .policy-link{background:none;border:0;padding:0;color:var(--brass-text);font-size:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
       .policy{margin-top:10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:12px 14px;font-size:13.5px;color:var(--muted);line-height:1.55}
@@ -864,6 +874,7 @@
             }
           }
           openBooking();
+          openStep("stepSvc"); /* запись открывается сразу на шаге услуг, услуга уже выбрана */
         });
       }
     }
@@ -1019,7 +1030,7 @@
     var svcOpen = "hair";
     var CHEV_SVG = '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
     function renderServices(){
-      var html = '<p class="hint" style="margin:6px 0 2px">Цены зависят от категории мастера (шаг 2) — пока она не выбрана, показана минимальная со знаком «от». Длительность визита уточняется у мастера. Комплекс можно выбрать только один: нажатие на другой комплекс заменит выбранный.</p>';
+      var html = '<p class="hint" style="margin:6px 0 2px">Цены — «от»; точная зависит от категории мастера (шаг 2). Комплекс — только один: другой заменит выбранный.</p>';
       SVC_GROUPS.forEach(function(g){
         var items = g.ids.map(svcById).filter(function(s){ return !!s; });
         var selCount = 0;
@@ -1166,7 +1177,7 @@
           rows += '<div class="sum-row"><span>Начало</span><b>'+fmtTime(state.time)+'</b></div>';
         }
         rows += '<div class="sum-row total"><span>Итого</span><b>'+fmtTotal()+'</b></div>';
-        if(priceIsFrom()) rows += '<p class="hint" style="margin-top:8px">Цены «от» — минимальные, по категории «Цирюльник». Точная цена появится, когда выберете категорию мастера в шаге 2.</p>';
+        if(priceIsFrom()) rows += '<p class="hint" style="margin-top:8px">«От» — цена по категории «Цирюльник»; точная — после выбора мастера в шаге 2.</p>';
         sum.innerHTML = rows;
         sum.classList.add("show");
       } else {
@@ -1178,11 +1189,20 @@
 
     function renderBar(){
       var foot = $("modalFoot");
-      foot.classList.toggle("show", state.view==="flow");
-      if(state.view!=="flow") return;
+      /* нижняя панель с кнопкой действия видна всегда: и в шагах, и в форме */
+      var show = state.view==="flow" || state.view==="form";
+      foot.classList.toggle("show", show);
+      if(!show) return;
       var sel = selectedServices();
       $("mfPrice").textContent = sel.length ? fmtTotal() : "Выберите услуги";
       var sub = $("mfSub"), btn = $("mfBtn");
+      if(state.view==="form"){
+        sub.textContent = bookingSummaryText();
+        btn.textContent = "Подтвердить запись";
+        btn.disabled = state.saving;
+        return;
+      }
+      btn.disabled = false;
       if(ready()){
         sub.textContent = fmtDateFull(state.date)+", начало в "+fmtTime(state.time)+" · "+masterDisplayLabel();
         btn.textContent = "Продолжить";
@@ -1198,6 +1218,7 @@
       }
     }
     $("mfBtn").addEventListener("click", function(){
+      if(state.view==="form"){ $("confirmBtn").click(); return; }
       if(ready()){ goToForm(); return; }
       if(!selectedServices().length){ openStep("stepSvc"); $("stepSvc").scrollIntoView({behavior:"smooth", block:"nearest"}); }
       else { openStep("stepWhen"); $("stepWhen").scrollIntoView({behavior:"smooth", block:"nearest"}); }
@@ -1386,9 +1407,12 @@
         return;
       }
       var btn = $("confirmBtn");
+      var mfBtnEl = $("mfBtn");
       state.saving = true;
       btn.disabled = true;
       btn.textContent = "Сохраняем запись…";
+      mfBtnEl.disabled = true;
+      mfBtnEl.textContent = "Сохраняем запись…";
 
       var booking = {
         num:null,
@@ -1409,6 +1433,8 @@
         state.saving = false;
         btn.disabled = false;
         btn.textContent = "Подтвердить запись";
+        mfBtnEl.disabled = false;
+        mfBtnEl.textContent = "Подтвердить запись";
         state.lastBooking = saved;
         state.rescheduleNum = null;
         saveDraft();
@@ -1418,6 +1444,8 @@
         state.saving = false;
         btn.disabled = false;
         btn.textContent = "Подтвердить запись";
+        mfBtnEl.disabled = false;
+        mfBtnEl.textContent = "Подтвердить запись";
         err.textContent = (e && e.message) ? e.message : "Не удалось сохранить запись. Проверьте интернет и попробуйте ещё раз — ваш выбор не потерян.";
         err.classList.add("show");
       });
