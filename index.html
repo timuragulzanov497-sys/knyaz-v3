@@ -133,12 +133,7 @@
       body.modal-open{overflow:hidden}
       .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(4,4,5,.78);display:flex;align-items:center;justify-content:center;padding:24px}
       .modal-panel{background:var(--bg);border:1px solid var(--line2);width:100%;max-width:1060px;max-height:calc(100dvh - 48px);display:flex;flex-direction:column;border-radius:var(--radius)}
-      .modal-head{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 28px;border-bottom:1px solid var(--line);flex:none}
-      .modal-head>*{position:relative;z-index:1}
-      /* эмблема-водяной знак в шапке окна — как печать на главной */
-      .modal-seal{position:absolute;right:-42px;top:50%;transform:translateY(-50%);width:148px;height:148px;border-radius:50%;
-        object-fit:contain;filter:invert(1) grayscale(1);mix-blend-mode:screen;opacity:.13;pointer-events:none;z-index:0}
-      @media (max-width:720px){ .modal-seal{width:118px;height:118px;right:-36px;opacity:.11} }
+      .modal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 28px;border-bottom:1px solid var(--line);flex:none}
       .modal-head h2{font-size:24px}
       .modal-head .sub{font-size:13.5px;color:var(--muted);margin-top:2px}
       .modal-x{background:none;border:1px solid var(--line2);color:var(--text);width:38px;height:38px;flex:none;font-size:22px;line-height:1;cursor:pointer;border-radius:var(--radius)}
@@ -205,7 +200,7 @@
       .bundle-swap{background:none;border:1px solid var(--brass);color:var(--brass-text);
         border-radius:var(--radius);padding:10px 16px;font-size:14px;font-weight:600;min-height:44px;cursor:pointer}
       .svc-next{display:block;width:100%;margin-top:14px;padding:14px;
-        background:var(--btn-bg);color:var(--btn-text);border:0;border-radius:var(--radius);
+        background:var(--brass);color:#141310;border:0;border-radius:var(--radius);
         font-size:15.5px;font-weight:700;min-height:50px;cursor:pointer}
       .svc-next:disabled{background:var(--panel2);color:var(--faint);cursor:default}
 
@@ -224,11 +219,12 @@
       .opt{width:100%;display:flex;align-items:center;gap:12px;text-align:left;
         background:transparent;border:0;border-bottom:1px solid var(--line);
         color:var(--text);padding:11px 4px;font-size:15px;min-height:52px;cursor:pointer}
+      .opt .avatar img{width:42px;height:42px;border-radius:50%;object-fit:cover;display:block}
+      .opt .avatar.has-img{border:0;background:none;padding:0}
       .opt .avatar{flex:none;width:42px;height:42px;border-radius:50%;
-        border:1px solid rgba(176,141,87,.38);background:radial-gradient(circle at 34% 28%, #1d1b17, #121110 76%);
-        color:#bfae8d;font-family:var(--serif);font-size:15.5px;letter-spacing:.01em;
+        border:1px solid var(--brass-deep);background:radial-gradient(circle at 34% 28%, #26221c, #12100c 74%);
+        color:var(--brass-text);font-family:var(--serif);font-size:16px;
         display:flex;align-items:center;justify-content:center}
-      .opt.sel .avatar{border-color:rgba(201,166,104,.75);color:var(--brass-text)}
       .opt .who{flex:1;min-width:0}
       .opt .who .n{font-weight:600}
       .opt .who .d{font-size:13px;color:var(--muted);margin-top:1px}
@@ -505,7 +501,6 @@
   <div class="modal-overlay" id="bookingModal" style="display:none" role="dialog" aria-modal="true" aria-label="Запись в цирюльню «Князь»">
     <div class="modal-panel">
       <div class="modal-head">
-        <img class="modal-seal" src="assets/logo.jpg" alt="" />
         <div>
           <h2>Запись</h2>
           <div class="sub">Выберите мастера, услуги и удобное время</div>
@@ -587,7 +582,7 @@
             <p class="ferr" id="consentErr"></p>
           </div>
           <div class="form-actions">
-            <button type="button" class="btn block" id="confirmBtn">Подтвердить запись</button>
+            <button type="button" class="btn brass block" id="confirmBtn">Подтвердить запись</button>
             <button type="button" class="btn ghost block" id="backBtn">Назад к выбору</button>
           </div>
         </div>
@@ -614,7 +609,7 @@
           <div class="mf-price" id="mfPrice">Выберите мастера</div>
           <div class="mf-sub" id="mfSub">Шаг 1 из 3 · специалист</div>
         </div>
-        <button type="button" class="btn mf-btn" id="mfBtn">Продолжить</button>
+        <button type="button" class="btn brass mf-btn" id="mfBtn">Продолжить</button>
       </div>
     </div>
   </div>
@@ -740,66 +735,181 @@
     var OPEN = 10*60, CLOSE = 21*60, STEP = 30;
     var TZ = "Europe/Samara"; /* Астрахань, UTC+4 */
 
-    var CATS = [
-      {id:"barber", name:"Цирюльник"},
-      {id:"top",    name:"Топ-цирюльник"}
-    ];
+    /* ---------------- data: загружается из API (/api/public/config) ----------------
+       Никакого захардкоженного прайса: услуги, цены, мастера и настройки —
+       только из базы. Пока данные грузятся — скелетон (см. boot() внизу). */
+    var CATS = [];
+    var MASTERS = [];    /* + псевдо-выборы any / cat:<id>, строятся из каталога */
+    var SERVICES = [];
+    var SVC_GROUPS = [];
+    var SETTINGS = null; /* настройки сайта из базы */
+    var CONFIG_ERROR = null;
     function catName(id){ for(var i=0;i<CATS.length;i++) if(CATS[i].id===id) return CATS[i].name; return ""; }
-
-    var MASTERS = [
-      {id:"any",       name:"Любой мастер",        note:"Категория не важна · первый освободившийся", initials:""},
-      {id:"cat:barber",name:"Любой цирюльник",     note:"Категория «Цирюльник»",     cat:"barber", initials:""},
-      {id:"barber:b1", name:"Барбер 1",            note:"Цирюльник",                 cat:"barber", initials:"Б1"},
-      {id:"barber:b2", name:"Барбер 2",            note:"Цирюльник",                 cat:"barber", initials:"Б2"},
-      {id:"cat:top",   name:"Любой топ-цирюльник", note:"Категория «Топ-цирюльник»", cat:"top",    initials:""},
-      {id:"top:b1",    name:"Барбер 1",            note:"Топ-цирюльник",             cat:"top",    initials:"Б1"},
-      {id:"top:b2",    name:"Барбер 2",            note:"Топ-цирюльник",             cat:"top",    initials:"Б2"}
-    ];
-
-    /* Прайс владельца: цена зависит от категории мастера.
-       Длительности в прайсе нет — на странице она не показывается;
-       поле dur используется только внутри, для проверки занятости слотов. */
-    var SERVICES = [
-      {id:"haircut",   name:"Стрижка мужская",                           dur:60,  prices:{barber:700,  top:1000}},
-      {id:"kids",      name:"Стрижка детская (3–11 лет)",                dur:45,  prices:{barber:600,  top:900}},
-      {id:"clipper",   name:"Стрижка под машинку (одна насадка)",        dur:30,  prices:{barber:400,  top:400}},
-      {id:"beard",     name:"Коррекция бороды",                          dur:30,  prices:{barber:400,  top:600}},
-      {id:"beardshave",name:"Коррекция бороды с подбриванием",           dur:45,  prices:{barber:600,  top:700}},
-      {id:"shave",     name:"Бритьё",                                    dur:45,  prices:{barber:900,  top:900}},
-      {id:"camoHair",  name:"Камуфляж седины (волосы)",                  dur:40,  prices:{barber:500,  top:500}},
-      {id:"camoBeard", name:"Камуфляж седины (борода)",                  dur:30,  prices:{barber:450,  top:450}},
-      {id:"waxEars",   name:"Удаление волос воском — уши",               dur:15,  prices:{barber:300,  top:300}},
-      {id:"waxNose",   name:"Удаление волос воском — нос",               dur:10,  prices:{barber:200,  top:200}},
-      {id:"waxBrows",  name:"Удаление волос воском — брови",             dur:15,  prices:{barber:200,  top:200}},
-      {id:"waxNeck",   name:"Удаление волос воском — шея",               dur:20,  prices:{barber:500,  top:500}},
-      {id:"edge",      name:"Окантовка с подбриванием",                  dur:20,  prices:{barber:250,  top:250}},
-      {id:"wash",      name:"Мытьё и укладка волос",                     dur:20,  prices:{barber:150,  top:200}},
-      {id:"pkgFriends",name:"Друг+друг",                                 dur:120, prices:{barber:1300, top:1900}, group:"combo", includes:["haircut"]},
-      {id:"pkgFather", name:"Отец+сын (3–11 лет)",                       dur:90,  prices:{barber:1200, top:1800}, group:"combo", includes:["haircut","kids"]},
-      {id:"pkgHB",     name:"Стрижка + коррекция бороды",                dur:90,  prices:{barber:1000, top:1400}, group:"combo", includes:["haircut","beard"]},
-      {id:"pkgHBS",    name:"Стрижка + коррекция бороды с подбриванием", dur:105, prices:{barber:1100, top:1600}, group:"combo", includes:["haircut","beardshave"]}
-    ];
-
-    var SVC_GROUPS = [
-      {id:"hair",  name:"Стрижки",       ids:["haircut","kids","clipper","wash"]},
-      {id:"beard", name:"Борода",        ids:["beard","beardshave","shave","edge"]},
-      {id:"combo", name:"Комплексы",     ids:["pkgFriends","pkgFather","pkgHB","pkgHBS"]},
-      {id:"extra", name:"Дополнительно", ids:["camoHair","camoBeard","waxEars","waxNose","waxBrows","waxNeck"]}
-    ];
     function groupOf(id){
       for(var i=0;i<SVC_GROUPS.length;i++) if(SVC_GROUPS[i].ids.indexOf(id)>=0) return SVC_GROUPS[i].id;
-      return "hair";
+      return SVC_GROUPS.length ? SVC_GROUPS[0].id : "hair";
     }
 
-    /* ---------------- storage (this browser only) ---------------- */
-    var LS_BOOK = "knyaz-v3-bookings-v1";
+    function normalizeConfig(cfg){
+      CATS = cfg.categories || [];
+      SERVICES = (cfg.services || []).map(function(s){
+        return {id:s.id, name:s.name, dur:s.durationMin, prices:s.prices||{}, includes:s.includes||[], group:s.groupId};
+      });
+      SVC_GROUPS = (cfg.groups || []).map(function(g){
+        return {id:g.id, name:g.name, ids:SERVICES.filter(function(s){ return s.groupId===g.id; }).map(function(s){ return s.id; })};
+      });
+      /* услуга без группы (на случай новой группы в админке) — в первую группу */
+      SERVICES.forEach(function(s){
+        if(!SVC_GROUPS.some(function(g){ return g.ids.indexOf(s.id)>=0; }) && SVC_GROUPS.length){
+          SVC_GROUPS[0].ids.push(s.id);
+        }
+      });
+      MASTERS = [{id:"any", name:"Любой мастер", note:"Категория не важна · первый освободившийся", initials:""}];
+      CATS.forEach(function(c){
+        MASTERS.push({id:"cat:"+c.id, name:"Любой "+c.name.charAt(0).toLowerCase()+c.name.slice(1),
+          note:"Категория «"+c.name+"»", cat:c.id, initials:""});
+      });
+      (cfg.masters || []).forEach(function(m){
+        MASTERS.push({id:m.id, name:m.name, cat:m.categoryId, note:catName(m.categoryId),
+          initials:m.initials||"", avatarUrl:m.avatarUrl||null, specialization:m.specialization||""});
+      });
+      SETTINGS = cfg.settings || null;
+      if(SETTINGS){
+        OPEN = SETTINGS.openStartMin;
+        CLOSE = SETTINGS.openEndMin;
+      }
+    }
+
+    function loadConfig(){
+      return fetch("/api/public/config").then(function(r){
+        if(!r.ok) throw new Error("config "+r.status);
+        return r.json();
+      }).then(function(cfg){
+        normalizeConfig(cfg);
+        applySettings();
+        applyLegal();
+      }).catch(function(e){
+        CONFIG_ERROR = e;
+        throw e;
+      });
+    }
+
+    /* Настройки из базы — на страницу: телефон, адрес, часы, ссылки, логотип. */
+    function applySettings(){
+      if(!SETTINGS) return;
+      var s = SETTINGS;
+      var digits = String(s.phone||"").replace(/\D/g,"");
+      if(digits.charAt(0)==="8") digits = "7"+digits.slice(1);
+      document.querySelectorAll('a[href^="tel:"]').forEach(function(a){
+        a.href = "tel:+"+digits;
+        if(/\+7|917|\d{3}/.test(a.textContent)) a.textContent = s.phoneDisplay;
+      });
+      var heroAddr = document.querySelector(".hero .meta div");
+      if(heroAddr) heroAddr.innerHTML = "<b>"+esc(s.address.replace(/^[^,]+,\s*/,"").replace(/,\s*1 этаж\s*$/," · 1 этаж"))+"</b>";
+      var cond = document.querySelectorAll("#conditions .cond > div .val");
+      if(cond[0]) cond[0].textContent = "Ежедневно "+fmtHM(OPEN)+"–"+fmtHM(CLOSE);
+      if(cond[2]) cond[2].textContent = s.paymentText;
+      if(cond[3]) cond[3].textContent = (s.wifi?"Wi-Fi для клиентов":"") + (s.wifi&&s.dogAllowed?", ":"") + (s.dogAllowed?"можно с собакой":"");
+      var cAddr = document.querySelector("#contacts .contacts > div:nth-child(1) .val");
+      if(cAddr) cAddr.textContent = s.address;
+      var gisLink = document.querySelector('#contacts .contacts > div:nth-child(4) .val a');
+      if(gisLink && s.links.gis) gisLink.href = s.links.gis;
+      var foot = document.querySelectorAll("footer.site .row span");
+      if(foot[0]) foot[0].textContent = "Цирюльня «Князь» · "+s.address;
+      if(foot[1]) foot[1].textContent = "Ежедневно "+fmtHM(OPEN)+"–"+fmtHM(CLOSE);
+      if(s.links){
+        document.querySelectorAll('a[href*="2gis.ru/astrakhan/firm/"]').forEach(function(a){
+          a.href = a.href.indexOf("/tab/reviews")>=0 ? (s.links.gisReviews||a.href) : (s.links.gis||a.href);
+        });
+        document.querySelectorAll('a[href*="max.ru/u/"]').forEach(function(a){ if(s.links.max) a.href = s.links.max; });
+        document.querySelectorAll('a[href*="vk.com/cirulnya_knyaz"]').forEach(function(a){ if(s.links.vk) a.href = s.links.vk; });
+        document.querySelectorAll('a[href*="google.com/maps/search"]').forEach(function(a){ if(s.links.maps) a.href = s.links.maps; });
+      }
+      if(s.logoUrl){
+        document.querySelectorAll('img[src="assets/logo.jpg"]').forEach(function(img){ img.src = s.logoUrl; });
+      }
+    }
+
+    /* Юртексты из базы (редактируются в админке). Реквизиты подставляются,
+       пока поля пустые — остаётся исходная пометка «указывает владелец».
+       Рендер — БЕЗ innerHTML сырого HTML с сервера: строка парсится
+       DOMParser в отдельном документе (скрипты там не выполняются,
+       картинки не грузятся), фильтруется по тому же allowlist, что и на
+       сервере (p, h3, ul, ol, li, a, b, strong, em, i, br; у <a> только
+       безопасный href, у <p> только безопасный class), и только очищенные
+       узлы добавляются в страницу. Это второй рубеж после серверной
+       санитизации: даже уже сохранённый до неё HTML не выполнится. */
+    var LEGAL_TAGS = { P: 1, H3: 1, UL: 1, OL: 1, LI: 1, A: 1, B: 1, STRONG: 1, EM: 1, I: 1, BR: 1 };
+    var LEGAL_DROP = { SCRIPT: 1, STYLE: 1, IFRAME: 1, OBJECT: 1, EMBED: 1, FORM: 1, SVG: 1, MATH: 1, VIDEO: 1, AUDIO: 1, INPUT: 1, TEXTAREA: 1, SELECT: 1, BUTTON: 1, LINK: 1, META: 1, BASE: 1, TITLE: 1, NOSCRIPT: 1, TEMPLATE: 1, CANVAS: 1, IMG: 1, PICTURE: 1, SOURCE: 1, TRACK: 1, HR: 1, FRAME: 1, APPLET: 1 };
+    function renderLegalHtml(el, html){
+      if(!el) return;
+      while(el.firstChild) el.removeChild(el.firstChild);
+      var doc = new DOMParser().parseFromString(html || "", "text/html");
+      function clean(node){
+        var frag = document.createDocumentFragment();
+        for(var i = 0; i < node.childNodes.length; i++){
+          var child = node.childNodes[i];
+          if(child.nodeType === 3){
+            frag.appendChild(document.createTextNode(child.nodeValue));
+          } else if(child.nodeType === 1){
+            var tag = child.tagName;
+            if(LEGAL_DROP[tag]) continue;
+            if(LEGAL_TAGS[tag]){
+              var el2 = document.createElement(tag);
+              if(tag === "A"){
+                var href = (child.getAttribute("href") || "").trim();
+                if(/^(https?:\/\/|tel:|mailto:|\/|#)/i.test(href) && !/[\x00-\x1f\x7f]/.test(href)) el2.setAttribute("href", href);
+              } else if(tag === "P"){
+                var cls = (child.getAttribute("class") || "").trim();
+                if(/^[A-Za-z0-9_-]+(?: [A-Za-z0-9_-]+)*$/.test(cls)) el2.setAttribute("class", cls);
+              }
+              el2.appendChild(clean(child));
+              frag.appendChild(el2);
+            } else {
+              frag.appendChild(clean(child)); // неизвестный тег — выбросить, текст сохранить
+            }
+          }
+        }
+        return frag;
+      }
+      el.appendChild(clean(doc.body));
+    }
+    function applyLegal(){
+      if(!SETTINGS || !SETTINGS.legal) return;
+      var L = SETTINGS.legal;
+      if(L.policyHtml){
+        renderLegalHtml(document.querySelector("#policyModal .legal-body"), L.policyHtml);
+      }
+      if(L.consentHtml){
+        renderLegalHtml(document.querySelector("#consentModal .legal-body"), L.consentHtml);
+      }
+      var req = SETTINGS.requisites || {};
+      if(req.ip || req.inn || req.ogrn){
+        var note = document.querySelector("#policyModal .legal-note");
+        if(note){
+          var parts = [];
+          if(req.ip) parts.push(req.ip);
+          if(req.inn) parts.push("ИНН "+req.inn);
+          if(req.ogrn) parts.push("ОГРН "+req.ogrn);
+          note.textContent = "Оператор: "+parts.join(" · ")+".";
+        }
+      }
+    }
+
+    /* ---------------- storage: только черновик выбора ----------------
+       Записи хранятся на сервере, а не в localStorage. В браузере остаётся
+       только черновик выбора и ссылка {num, phone} на свою запись —
+       для переноса/отмены с экрана успеха. */
     var LS_DRAFT = "knyaz-v3-draft-v1";
+    var LS_MINE = "knyaz-v3-my-booking-v1";
     function lsGet(k){ try{ var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
     function lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
-
-    var store = lsGet(LS_BOOK) || {seq:1001, list:[]};
-    if(!store.list) store.list = [];
-    if(!store.seq) store.seq = 1001;
+    function myBookingRef(){ return lsGet(LS_MINE); }
+    function saveMyBookingRef(b){ if(b && b.num) lsSet(LS_MINE, {num:b.num, phone:b.phone}); }
+    function clearMyBookingRef(num){
+      var r = lsGet(LS_MINE);
+      if(r && r.num===num) { try{ localStorage.removeItem(LS_MINE); }catch(e){} }
+    }
 
     var state = {
       master:"any",
@@ -867,8 +977,15 @@
     }
     function svcPrice(s){
       var cat = effectiveCat();
-      if(cat) return {v:s.prices[cat], from:false};
-      return {v:Math.min(s.prices.barber, s.prices.top), from:s.prices.barber!==s.prices.top};
+      if(cat){
+        var v = s.prices[cat];
+        if(v!=null) return {v:v, from:false};
+      }
+      var vals = Object.keys(s.prices||{}).map(function(k){ return s.prices[k]; }).filter(function(v){ return v!=null; });
+      if(!vals.length) return {v:0, from:false};
+      var mn = Math.min.apply(null, vals);
+      var mx = Math.max.apply(null, vals);
+      return {v:mn, from:mn!==mx};
     }
     function totalPrice(){
       var t=0; selectedServices().forEach(function(s){ t+=svcPrice(s).v; });
@@ -889,10 +1006,11 @@
     function masterDisplayLabel(){
       return state.master==="any" ? "Не выбран" : masterLabel(state.master);
     }
+    function realMasters(){ return MASTERS.filter(function(m){ return m.id.indexOf("cat:")!==0; }); }
     function candidateMasters(){
-      if(state.master==="any") return ["barber:b1","barber:b2","top:b1","top:b2"];
+      if(state.master==="any") return realMasters().map(function(m){ return m.id; });
       var m = masterById(state.master);
-      if(m && m.id.indexOf("cat:")===0) return [m.cat+":b1", m.cat+":b2"];
+      if(m && m.id.indexOf("cat:")===0) return realMasters().filter(function(x){ return x.cat===m.cat; }).map(function(x){ return x.id; });
       return [state.master];
     }
     function svcWord(n){ return n===1 ? "услуга" : (n>=2 && n<=4 ? "услуги" : "услуг"); }
@@ -900,66 +1018,47 @@
       return (priceIsFrom()?"от ":"")+fmtPrice(totalPrice());
     }
 
-    /* ------- deterministic "already busy" intervals, same for every visitor ------- */
-    function hashStr(s){
-      var h=2166136261;
-      for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
-      return (h>>>0);
-    }
-    function busyIntervals(masterId, d){
-      var key = masterId+"|"+dateKey(d);
-      var seed = hashStr(key);
-      function rnd(){ seed = (Math.imul(seed,1103515245)+12345) & 0x7fffffff; return seed/0x7fffffff; }
-      var out=[], count = 2 + Math.floor(rnd()*2); /* 2–3 занятых окна в день */
-      for(var i=0;i<count;i++){
-        var start = OPEN + Math.floor(rnd()*((CLOSE-OPEN-120)/30))*30;
-        var len = (1+Math.floor(rnd()*3))*30; /* 30–90 мин */
-        out.push([start, Math.min(start+len, CLOSE)]);
-      }
-      return out;
+    /* ------- занятость — с сервера (/api/public/slots) -------
+       Реальные записи из базы + график мастеров. Псевдослучайная занятость
+       V3 удалена: свободных слотов стало заметно больше — это корректно,
+       а не баг (см. памятку владельцу). Назначение мастера — тоже на сервере. */
+    var AVAIL = {};        /* dateKey -> [свободные старты] для текущего выбора */
+    var AVAIL_KEY = "";
+    var AVAIL_LOADING = false;
+    function availKey(){ return state.master + "|" + totalDur(); }
+    function refreshAvailability(){
+      var key = availKey();
+      if(key === AVAIL_KEY && !AVAIL_LOADING) return Promise.resolve();
+      AVAIL_LOADING = true;
+      AVAIL = {}; /* старые данные — недействительны для нового выбора */
+      var today = tzNow().date;
+      var from = dateKey(today);
+      var toD = new Date(today.getFullYear(), today.getMonth(), today.getDate()+13);
+      return fetch("/api/public/slots?from="+from+"&to="+to+"&master="+encodeURIComponent(state.master)
+          +"&duration="+totalDur())
+        .then(function(r){ if(!r.ok) throw new Error("slots "+r.status); return r.json(); })
+        .then(function(data){ AVAIL = data.days || {}; AVAIL_KEY = key; })
+        .catch(function(){ /* ошибка сети — слоты уточним при следующей попытке */ })
+        .then(function(){ AVAIL_LOADING = false; });
     }
     function overlaps(aStart,aEnd,bStart,bEnd){ return aStart < bEnd && bStart < aEnd; }
-
-    function masterFree(masterId, d, start, dur){
-      var end = start+dur;
-      if(end > CLOSE) return false;
-      var busy = busyIntervals(masterId, d), i;
-      for(i=0;i<busy.length;i++) if(overlaps(start,end,busy[i][0],busy[i][1])) return false;
-      for(i=0;i<store.list.length;i++){
-        var b = store.list[i];
-        if(b.num===state.rescheduleNum) continue; /* свой перенос не блокирует сам себя */
-        if(b.masterId===masterId && b.dateKey===dateKey(d) && overlaps(start,end,b.start,b.start+b.dur)) return false;
-      }
-      return true;
-    }
     function slotFree(d, start){
-      var dur = totalDur();
-      if(start+dur > CLOSE) return false;
-      var now = tzNow();
-      if(sameDay(d, now.date) && start < now.minutes + 30) return false;
-      var cands = candidateMasters();
-      for(var i=0;i<cands.length;i++) if(masterFree(cands[i], d, start, dur)) return true;
-      return false;
+      var list = AVAIL[dateKey(d)];
+      if(!list) return true; /* данные ещё не загружены — оптимистично, уточним после загрузки */
+      return list.indexOf(start) >= 0;
     }
     function dayHasFree(d){
-      for(var t=OPEN; t+totalDur()<=CLOSE; t+=STEP){
-        if(slotFree(d,t)) return true;
-      }
-      return false;
+      var list = AVAIL[dateKey(d)];
+      if(!list) return true;
+      return list.length > 0;
     }
     function nearestFreeDay(from){
-      var base = tzNow().date;
+      var today = tzNow().date;
       for(var i=0;i<14;i++){
-        var d = new Date(base.getFullYear(), base.getMonth(), base.getDate()+i);
+        var d = new Date(today.getFullYear(), today.getMonth(), today.getDate()+i);
         if(sameDay(d,from)) continue;
         if(dayHasFree(d)) return d;
       }
-      return null;
-    }
-    function assignMaster(d, start){
-      var dur = totalDur();
-      var cands = candidateMasters();
-      for(var i=0;i<cands.length;i++) if(masterFree(cands[i], d, start, dur)) return cands[i];
       return null;
     }
 
@@ -981,9 +1080,7 @@
       var d = parseKey(dr.dateKey);
       if(d && dateKey(d) >= dateKey(tzNow().date)) state.date = d;
       if(state.date && typeof dr.time==="number") state.time = dr.time;
-      if(dr.rescheduleNum && store.list.some(function(b){ return b.num===dr.rescheduleNum; })){
-        state.rescheduleNum = dr.rescheduleNum;
-      }
+      if(dr.rescheduleNum) state.rescheduleNum = dr.rescheduleNum;
       return true;
     }
 
@@ -1025,8 +1122,8 @@
             + (s.includes ? '<div class="svc-note">Комплекс услуг</div>' : '')
             + '</span>'
             + '<span class="svc-prices">'
-            + '<span class="p"><div class="cap">Цирюльник</div><div class="val">'+fmtPrice(s.prices.barber)+'</div></span>'
-            + '<span class="p"><div class="cap">Топ-цирюльник</div><div class="val">'+fmtPrice(s.prices.top)+'</div></span>'
+            + '<span class="p"><div class="cap">Цирюльник</div><div class="val">'+(s.prices.barber!=null?fmtPrice(s.prices.barber):"—")+'</div></span>'
+            + '<span class="p"><div class="cap">Топ-цирюльник</div><div class="val">'+(s.prices.top!=null?fmtPrice(s.prices.top):"—")+'</div></span>'
             + '</span></button>';
         });
         if(groupHtml) html += '<div class="pgroup">'+g.name+'</div>' + groupHtml;
@@ -1057,7 +1154,7 @@
       function opt(m, displayName, note){
         var sel = state.master===m.id;
         return '<button type="button" class="opt'+(sel?" sel":"")+'" data-master="'+m.id+'" aria-pressed="'+(sel?"true":"false")+'">'
-          + '<span class="avatar">'+(m.initials ? esc(m.initials) : USERS_SVG)+'</span>'
+          + '<span class="avatar'+(m.avatarUrl?" has-img":"")+'">'+(m.avatarUrl?'<img src="'+esc(m.avatarUrl)+'" alt="" />':(m.initials ? esc(m.initials) : USERS_SVG))+'</span>'
           + '<span class="who"><span class="n">'+esc(displayName)+'</span>'+(note?'<div class="d">'+esc(note)+'</div>':"")+'</span>'
           + '<span class="radio"></span></button>';
       }
@@ -1125,7 +1222,7 @@
       box.innerHTML = skel;
       hint.textContent = "";
 
-      setTimeout(function(){
+      refreshAvailability().then(function(){
         if(my !== loadToken) return;
         if(typeof navigator!=="undefined" && navigator.onLine === false){
           box.innerHTML = '<div class="load-err" role="alert"><p>Не удалось загрузить свободное время — похоже, пропал интернет. Ваш выбор сохранён.</p>'
@@ -1133,8 +1230,15 @@
           $("retrySlots").addEventListener("click", loadSlots);
           return;
         }
+        /* если выбранное время за время загрузки заняли — снять выбор */
+        if(state.time!=null && !slotFree(state.date, state.time)){
+          var lost = fmtTime(state.time);
+          state.time = null;
+          showNotice("Время "+lost+" ("+fmtDateFull(state.date)+") только что заняли — выберите другое время.");
+        }
         renderSlots();
-      }, 280);
+        renderDates();
+      });
     }
 
     function renderSlots(){
@@ -1561,35 +1665,41 @@
       if(lx) lx.addEventListener("click", closeLegal);
     }
 
-    /* simulated save with re-checks: no double booking, slot must still be free */
+    /* Сохранение — на сервере: проверка слота и защита от двойной записи
+       (транзакция + EXCLUDE-констрейнт в БД). Ответ 409 — слот только что заняли. */
     function saveBooking(booking){
-      return new Promise(function(resolve, reject){
-        setTimeout(function(){
-          var masterId = assignMaster(parseKey(booking.dateKey), booking.start);
-          if(!masterId || masterId!==booking.masterId){
-            reject({code:"taken", message:"Это время только что заняли. Вернитесь к шагу 3 и выберите другое время."});
-            return;
+      var payload = {
+        masterSelection: state.master,
+        serviceIds: selectedServices().map(function(s){ return s.id; }),
+        dateKey: booking.dateKey,
+        start: booking.start,
+        name: booking.name,
+        phone: booking.phone,
+        comment: booking.comment,
+        consent: true,
+        idempotencyKey: booking.idemKey,
+        rescheduleNum: state.rescheduleNum || undefined
+      };
+      return fetch("/api/public/bookings", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      }).then(function(r){
+        return r.json().then(function(data){
+          if(!r.ok){
+            var e = new Error(data.error || "Не удалось сохранить запись");
+            e.code = data.code || "";
+            throw e;
           }
-          var digits = phoneDigits(booking.phone);
-          for(var i=0;i<store.list.length;i++){
-            var b = store.list[i];
-            if(b.num===state.rescheduleNum) continue;
-            if(phoneDigits(b.phone)===digits && b.dateKey===booking.dateKey
-               && overlaps(booking.start, booking.start+booking.dur, b.start, b.start+b.dur)){
-              reject({code:"dup", message:"Такая запись уже есть — № K-"+b.num+" на это же время. Похоже, форма отправлена дважды; вторая запись не создана."});
-              return;
-            }
-          }
-          if(state.rescheduleNum){
-            store.list = store.list.filter(function(b){ return b.num!==state.rescheduleNum; });
-            booking.num = state.rescheduleNum;
-          } else {
-            booking.num = store.seq++;
-          }
-          store.list.push(booking);
-          lsSet(LS_BOOK, store);
-          resolve(booking);
-        }, 550);
+          return data.booking;
+        });
+      }).then(function(b){
+        return {
+          num:b.num, masterId:b.masterId, masterName:b.masterName,
+          dateKey:b.dateKey, start:b.start, dur:b.dur,
+          services:b.services, price:b.price, from:b.from,
+          name:b.name, phone:b.phone, comment:b.comment
+        };
       });
     }
 
@@ -1620,8 +1730,7 @@
         else $("consentCheck").focus();
         return;
       }
-      var masterId = assignMaster(state.date, state.time);
-      if(!masterId){
+      if(!slotFree(state.date, state.time)){
         err.textContent = "Это время только что заняли. Вернитесь к выбору и укажите другое время.";
         err.classList.add("show");
         return;
@@ -1631,14 +1740,9 @@
 
       var booking = {
         num:null,
-        masterId:masterId,
-        masterName:masterLabel(masterId),
+        idemKey:"k"+Date.now().toString(36)+Math.random().toString(36).slice(2,8),
         dateKey:dateKey(state.date),
         start:state.time,
-        dur:totalDur(),
-        services:selectedServices().map(function(s){ return s.name; }),
-        price:totalPrice(),
-        from:priceIsFrom(),
         name:name,
         phone:$("fPhone").value,
         comment:$("fComment").value.trim()
@@ -1648,6 +1752,7 @@
         state.saving = false;
         state.lastBooking = saved;
         state.rescheduleNum = null;
+        saveMyBookingRef(saved);
         saveDraft();
         renderSuccess(saved, false);
         showView("success");
@@ -1678,7 +1783,7 @@
       $("okDetails").innerHTML = rows;
       $("okNote").textContent = cancelled
         ? "Время снова свободно. Если захотите записаться ещё раз — кнопка ниже."
-        : "Запись сохранена и останется здесь после обновления страницы. Длительность визита уточняется у мастера. Если планы изменятся, перенесите или отмените запись прямо на этом экране — или позвоните нам: +7 917 181-04-84.";
+        : "Запись сохранена. Длительность визита уточняется у мастера. Если планы изменятся, перенесите или отмените запись прямо на этом экране — или позвоните нам: " + (SETTINGS ? SETTINGS.phoneDisplay : "+7 917 181-04-84") + ".";
       $("againBtn").textContent = cancelled ? "Записаться снова" : "Новая запись";
       if(cancelled){
         $("icsBtn").style.display = "none";
@@ -1710,8 +1815,8 @@
         "DTSTART:"+icsStamp(b.dateKey, b.start),
         "DTEND:"+icsStamp(b.dateKey, b.start + b.dur),
         "SUMMARY:"+icsEscape("Цирюльня «Князь» — "+b.services.join(", ")),
-        "LOCATION:"+icsEscape("Астрахань, пл. Свободы, 45, 1 этаж"),
-        "DESCRIPTION:"+icsEscape("Запись K-"+b.num+". Мастер: "+b.masterName+". К оплате: "+(b.from?"от ":"")+b.price+" ₽. Тел.: +7 917 181-04-84"),
+        "LOCATION:"+icsEscape(SETTINGS ? SETTINGS.address : "Астрахань, пл. Свободы, 45, 1 этаж"),
+        "DESCRIPTION:"+icsEscape("Запись K-"+b.num+". Мастер: "+b.masterName+". К оплате: "+(b.from?"от ":"")+b.price+" ₽. Тел.: "+(SETTINGS ? SETTINGS.phoneDisplay : "+7 917 181-04-84")),
         "END:VEVENT","END:VCALENDAR"
       ].join("\r\n");
       var blob = new Blob([ics], {type:"text/calendar;charset=utf-8"});
@@ -1733,6 +1838,7 @@
       b.services.forEach(function(n){
         for(var i=0;i<SERVICES.length;i++) if(SERVICES[i].name===n) state.services[SERVICES[i].id]=true;
       });
+      state.date = tzNow().date;
       if(masterById(b.masterId)) state.master = b.masterId;
       state.date = tzNow().date;
       state.time = null;
@@ -1754,11 +1860,25 @@
       var b = state.lastBooking;
       if(!b) return;
       if(!cancelArmed){ armCancel(true); return; }
-      store.list = store.list.filter(function(x){ return x.num!==b.num; });
-      lsSet(LS_BOOK, store);
-      if(state.rescheduleNum===b.num) state.rescheduleNum = null;
-      saveDraft();
-      renderSuccess(b, true);
+      var ref = myBookingRef() || {num:b.num, phone:b.phone};
+      var btn = $("cancelBtn");
+      btn.disabled = true;
+      fetch("/api/public/bookings/"+b.num+"/cancel", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({phone: ref.phone || b.phone})
+      }).then(function(r){
+        if(!r.ok) throw new Error("cancel "+r.status);
+        return r.json();
+      }).then(function(){
+        btn.disabled = false;
+        clearMyBookingRef(b.num);
+        renderSuccess(b, true);
+      }).catch(function(){
+        btn.disabled = false;
+        armCancel(false);
+        showNotice("Не удалось отменить запись. Позвоните нам: " + (SETTINGS ? SETTINGS.phoneDisplay : "+7 917 181-04-84") + " — отменим по телефону.");
+      });
     });
 
     $("againBtn").addEventListener("click", function(){
@@ -1772,35 +1892,63 @@
     });
 
     /* ---------------- open/closed indicator ---------------- */
+    function fmtHM(min){ return pad(Math.floor(min/60))+":"+pad(min%60); }
     function renderOpenState(){
       var now = tzNow();
       var open = now.minutes >= OPEN && now.minutes < CLOSE;
+      var hoursTxt = "Ежедневно "+fmtHM(OPEN)+"–"+fmtHM(CLOSE);
       $("heroHours").innerHTML = open
-        ? '<b>Ежедневно 10:00–21:00</b> · <span class="open-now">сейчас открыто</span>'
-        : '<b>Ежедневно 10:00–21:00</b> · <span class="closed-now">сейчас закрыто</span>';
+        ? '<b>'+hoursTxt+'</b> · <span class="open-now">сейчас открыто</span>'
+        : '<b>'+hoursTxt+'</b> · <span class="closed-now">сейчас закрыто</span>';
       $("contactHours").textContent = open
-        ? "Ежедневно 10:00–21:00 · сейчас открыто"
-        : "Ежедневно 10:00–21:00 · сейчас закрыто";
+        ? hoursTxt+" · сейчас открыто"
+        : hoursTxt+" · сейчас закрыто";
     }
 
-    /* ---------------- init ---------------- */
-    var hadDraft = restoreDraft();
-    for(var gi2=0; gi2<SVC_GROUPS.length; gi2++){
-      var grpHas = SVC_GROUPS[gi2].ids.some(function(id){ return state.services[id]; });
-      if(grpHas){ svcOpen = SVC_GROUPS[gi2].id; break; }
+    /* ---------------- init: данные — из API, без захардкоженного прайса ---------------- */
+    function showConfigError(){
+      $("svcList").innerHTML = '<div class="load-err" role="alert"><p>Не удалось загрузить услуги и цены. Проверьте соединение с интернетом и попробуйте ещё раз.</p>'
+        + '<button type="button" class="retry-btn" id="retryConfig">Повторить</button></div>';
+      $("retryConfig").addEventListener("click", boot);
+      var ml = $("masterList");
+      if(ml) ml.innerHTML = "";
     }
-    if(!state.date) state.date = tzNow().date;
-    if(state.date && state.time!=null && !slotFree(state.date, state.time)){
-      state.time = null;
+    function boot(){
+      if(!SETTINGS){
+        $("svcList").innerHTML = '<div class="skel" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="load-note">Загружаем услуги и цены…</p>';
+      }
+      loadConfig().then(function(){
+        var hadDraft = restoreDraft();
+        for(var gi2=0; gi2<SVC_GROUPS.length; gi2++){
+          var grpHas = SVC_GROUPS[gi2].ids.some(function(id){ return state.services[id]; });
+          if(grpHas){ svcOpen = SVC_GROUPS[gi2].id; break; }
+        }
+        if(!state.date) state.date = tzNow().date;
+        renderOpenState();
+        renderPagePrice();
+        showView("flow");
+        renderAll();
+        /* прямая ссылка на политику (из футера админки): /#policy */
+        if(location.hash === "#policy") openLegal("policyModal");
+      }).catch(function(){
+        showConfigError();
+      });
     }
-    renderOpenState();
+    /* кнопка «Весь прайс» — один раз, чтобы повторный boot не дублировал обработчик */
     $("priceToggle").addEventListener("click", function(){
       pageFullPrice = !pageFullPrice;
       renderPagePrice();
     });
-    renderPagePrice();
-    showView("flow");
-    renderAll();
+    /* окно записи не открывается, пока нет данных из базы */
+    var _openBooking = openBooking;
+    openBooking = function(){
+      if(!SETTINGS){
+        boot();
+        return;
+      }
+      _openBooking();
+    };
+    boot();
   })();
   </script>
 </body>
